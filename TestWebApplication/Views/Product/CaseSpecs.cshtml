@@ -1,0 +1,47 @@
+﻿@model TestWebApplication.Domain.Entities.PhoneCasesAttribute
+
+<div class="row">
+    <div class="col-sm-6">
+        <h3>Характеристики</h3>
+        <hr />
+        <table class="table-hover" style="width:100%;">
+            @{
+                if (Model.Applicability != null)
+                {
+                    <tr>
+                        <td>Модель телефона</td>
+                        <td>@Model.Applicability</td>
+                    </tr>
+                }
+                if (Model.Type != null)
+                {
+                    <tr>
+                        <td>Тип</td>
+                        <td>@Model.Type</td>
+                    </tr>
+                }
+                if (Model.Material != null)
+                {
+                    <tr>
+                        <td>Материал</td>
+                        <td>@Model.Material</td>
+                    </tr>
+                }
+                if (Model.Color != null)
+                {
+                    <tr>
+                        <td>Цвет</td>
+                        <td>@Model.Color</td>
+                    </tr>
+                }
+                if (Model.DisplaySize != null)
+                {
+                    <tr>
+                        <td>Диагональ дисплея</td>
+                        <td>@Model.DisplaySize</td>
+                    </tr>
+                }
+            }
+        </table>
+    </div>
+</div>

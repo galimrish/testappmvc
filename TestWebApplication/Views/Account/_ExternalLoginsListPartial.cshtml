@@ -1,0 +1,41 @@
+﻿@model TestWebApplication.WebUI.Models.ExternalLoginListViewModel
+@using Microsoft.Owin.Security
+
+<hr />
+<h3>Войти через</h3>
+@{
+    var loginProviders = Context.GetOwinContext().Authentication.GetExternalAuthenticationTypes();
+    if (loginProviders.Count() > 0)
+    { 
+        using (Html.BeginForm("ExternalLogin", "Account", new { ReturnUrl = Model.ReturnUrl })) {
+            @Html.AntiForgeryToken()
+            <div id="socialLoginList">
+                <ul class="list-inline">
+                    @foreach (AuthenticationDescription p in loginProviders)
+                    {
+                        <li>
+                            @{
+                        switch (p.Caption)
+                        {
+                            case "Vkontakte":
+                                <button type="submit" class="btn btn-default" id="Vk" name="provider"
+                                        value="Vkontakte" title="Войти через Вконтакте" style="color:buttonface;"></button>
+                                break;
+                            case "Google":
+                            <button type="submit" class="btn btn-default" id="Google" name="provider"
+                                    value="Google" title="Войти через Google" style="color:buttonface;"></button>
+                                break;
+                            case "Facebook":
+                            <button type="submit" class="btn btn-default" id="Facebook" name="provider"
+                                    value="Facebook" title="Войти через Facebook" style="color:buttonface;"></button>
+                                break;
+                        }
+}
+                        </li>
+                    }
+                </ul>
+            </div>
+            <hr />
+        }
+    }
+}

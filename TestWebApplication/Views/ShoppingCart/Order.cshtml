@@ -1,0 +1,289 @@
+﻿@using TestWebApplication.WebUI.Models
+@model ShoppingCartViewModel
+
+@{
+    ViewBag.Title = "TestApp: Корзина покупок";
+}
+
+@{
+    if (Model.CartItems.Count == 0)
+    {
+        <h2>Корзина пуста</h2>
+    }
+    else
+    {
+        <div class="cartPanel">
+            <h2>Ваша корзина</h2>
+            <div class="row">
+                <div class="col-md-8 col-sm-9 col-xs-10">
+                    @if (Model.CartItems.Count > 1)
+                    {
+                        <div class="row">
+                            <div class="col-sm-offset-9 col-xs-3">
+                                <div class="trashFrame">
+                                    <div class="clearCart jqClearCart trash">
+                                        <span class="glyphicon glyphicon-trash"></span> Удалить всё
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    <div class="cartFrame">
+                        @Html.EditorFor(m => m.CartItems)
+                        <div class="row cartItem">
+                            <div class="col-xs-offset-2 col-xs-10">
+                                <div class="row">
+                                    <div class="col-sm-offset-6 col-xs-3">
+                                        <strong>Общая стоимость</strong>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <strong>
+                                            <span class="cartItemsTotal"
+                                                    data-total_price="@Model.CartTotal.ToString(
+                                                    new System.Globalization.NumberFormatInfo() { NumberDecimalSeparator = "." })">
+                                                @Model.CartTotal.ToString("#")
+                                            </span>
+                                        </strong>
+                                        <span class="glyphicon glyphicon-rub rubFix"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @Html.Partial("UserInfo", Model.UserInfoDto)
+            @*Html.RenderPartial("Userinfo", userInfo);*@
+            
+        </div>
+    }
+}
+
+<script>
+    $(function () {
+        $("input.jqCountInput").on({
+            keydown: function (e) {
+                onlyNumbers(e, false);
+            },
+            change: function () {
+                var el = $(this);
+                var count = +el.val();
+                var min = Number(el.attr("min"));
+                var max = Number(el.attr("max"));
+                if (isNaN(count) || count < min || count > max) {
+                    count = 1;
+                    el.val(count);
+                }
+                var productId = el.data("product-id")
+                $.post("/ShoppingCart/SetProductAmount",
+                { 'productId': productId, 'count': count },
+                function (response, status) {
+                    if (status == "success" && response.result == true) {
+                        var priceNode = el.parents(".cartItem");
+                        var priceOutput = priceNode.find(".jqPriceOutput");
+                        var priceNodeVal = priceOutput.attr("data-item_price");
+                        var itemPrice = parseFloat(priceNodeVal);
+                        var oldPrice = parseFloat(priceOutput.attr("data-total_price"));
+                        var price = count * itemPrice;
+                        if (!isNaN(price)) {
+                            priceOutput.text(price);
+                            priceOutput.attr("data-total_price", price);
+                            var totalNode = $(".cartItemsTotal");
+                            var total = parseFloat(totalNode.attr("data-total_price"));
+                            total += price - oldPrice;
+                            if (!isNaN(total)) {
+                                totalNode.text(total);
+                                totalNode.attr("data-total_price", total);
+                            }
+                        }
+                    }
+                });
+            }
+        });
+        $("div").on("click", ".jqRemoveCartItem", removeCartItemClick);
+        $("div").on("click", ".jqTotalRemove", totalRemoveClick);
+        $("div").on("click", ".jqClearCart", clearCartClick);
+        $("div").on("click", ".jqRestoreItem", restoreItemClick);
+        $("div").on("click", ".jqRestoreCart", restoreCartClick);
+    });
+
+    function removeCartItemClick() {
+        $("div").off("click", ".jqRemoveCartItem");
+        var itemId = $(this).data("item_id");
+        $.post("/ShoppingCart/LabelItemForRemove",
+        { 'itemId': itemId },
+        function (response, status) {
+            if (status == "success" && response.cartItemsCount != null) {
+                removeFromCart(itemId);
+                if (response.cartItemsCount > 0) {
+                    $(".cartCount").text(response.cartItemsCount.toString());
+                }
+                else {
+                    $(".cartCount").css("display", "none");
+                    var el = $(".clearCart");
+                    el.removeClass("jqClearCart");
+                    el.addClass("jqRestoreCart");
+                    el.text("Восстановить всё");
+                    var childEl = el.children();
+                    childEl.removeClass("glyphicon-trash");
+                    childEl.addClass("glyphicon-repeat");
+                }
+            }
+            $("div").on("click", ".jqRemoveCartItem", removeCartItemClick);
+        });
+    }
+
+    function removeFromCart(itemId) {
+        var el = $(".cartItem").filter("[data-item_id='" + itemId + "']");
+        if (el.hasClass("jqRemoved"))
+            return;
+        if (el.length) {
+            el.find(".cartItemImg").css("display", "none");
+            el.find(".trashFrame").css("display", "none");
+            el.find(".cartItemCount").css("display", "none");
+            var priceNode = el.find(".cartItemPrice");
+            priceNode.css("display", "none");
+            var elRemovedItem = $("<div></div>").addClass("removedItem").
+                text("Товар удалён");
+            var elRestoreItem = $("<span></span>").
+                addClass("restoreItem jqRestoreItem").text("Отменить");
+            var elTotalRemove = $("<span></span>").
+                addClass("totalRemove jqTotalRemove").text("X");
+            elRemovedItem.append(elRestoreItem, elTotalRemove);
+            priceNode.parent().append(elRemovedItem);
+            var priceOutput = priceNode.find(".jqPriceOutput");
+            var delPrice = parseFloat(priceOutput.attr("data-total_price"));;
+            var totalNode = $(".cartItemsTotal");
+            var total = parseFloat(totalNode.attr("data-total_price"));
+            total -= delPrice;
+            if (!isNaN(total)) {
+                totalNode.text(total);
+                totalNode.attr("data-total_price", total);
+            }
+            el.addClass("jqRemoved");
+        }
+    }
+
+    function restoreItemClick() {
+        $("div").off("click", ".jqRestoreItem");
+        var el = $(this).parents(".cartItem");
+        var itemId = el.data("item_id");
+        $.post("/ShoppingCart/RestoreItem",
+        { 'itemId': itemId },
+        function (response, status) {
+            if (status == "success" && response.itemsRemain != null) {
+                restoreItemById(itemId);
+                if (response.itemsRemain > 0) {
+                    $(".cartCount").text(response.itemsRemain.toString());
+                }
+            }
+            $("div").on("click", ".jqRestoreItem", restoreItemClick);
+        });
+    }
+
+    function restoreItemById(itemId) {
+        var el = $(".cartItem").filter("[data-item_id='" + itemId + "']");
+        if (!el.hasClass("jqRemoved"))
+            return;
+        if (el.length) {
+            el.find(".removedItem").remove();
+            el.find(".cartItemImg").css("display", "block");
+            el.find(".trashFrame").css("display", "block");
+            el.find(".cartItemCount").css("display", "block");
+            var priceNode = el.find(".cartItemPrice");
+            priceNode.css("display", "block");
+            var priceOutput = priceNode.find(".jqPriceOutput");
+            var delPrice = parseFloat(priceOutput.attr("data-total_price"));
+            var totalNode = $(".cartItemsTotal");
+            var total = parseFloat(totalNode.attr("data-total_price"));
+            total += delPrice;
+            if (!isNaN(total)) {
+                totalNode.text(total);
+                totalNode.attr("data-total_price", total);
+            }
+            el.removeClass("jqRemoved");
+            var clearCart = $(".clearCart");
+            if (clearCart.hasClass("jqRestoreCart")) {
+                var childEl = clearCart.children();
+                childEl.addClass("glyphicon-trash");
+                childEl.removeClass("glyphicon-repeat");
+                clearCart.addClass("jqClearCart");
+                clearCart.text(" Удалить всё");
+                clearCart.removeClass("jqRestoreCart");
+                clearCart.prepend(childEl);
+            }
+        }
+    }
+
+    function totalRemoveClick() {
+        $("div").off("click", ".jqTotalRemove");
+        var el = $(this).parents(".cartItem");
+        var itemId = el.data("item_id");
+        $.post("/ShoppingCart/RemoveFromCart",
+        {'itemId': itemId},
+        function (response, status) {
+            if (status == "success" && response.itemsRemain > -1) {
+                if (response.itemsRemain == 0) {
+                    var emptyCart = $("<h2></h2>").text("Корзина пуста");
+                    var cartPanel = $(".cartPanel");
+                    cartPanel.parent().append(emptyCart)
+                    cartPanel.remove();
+                    $(".cartCount").css("display", "none");
+                    return;
+                }
+                el.parent().remove();
+                $(".cartCount").text(response.itemsRemain.toString());
+            }
+            $("div").on("click", ".jqTotalRemove", totalRemoveClick);
+        });
+    }
+
+    function clearCartClick() {
+        $("div").off("click", ".jqClearCart");
+        var el = $(this);
+        $.post("/ShoppingCart/ClearCart",
+        function (response, status) {
+            if (status == "success" && response.succeeded == true) {
+                $(".cartItemBox").children().each(function (i) {
+                    var itemId = $(this).data("item_id");
+                    removeFromCart(itemId);
+                });
+                var childEl = el.children();
+                childEl.addClass("glyphicon-repeat");
+                childEl.removeClass("glyphicon-trash");
+                el.addClass("jqRestoreCart");
+                el.text(" Восстановить всё");
+                el.removeClass("jqClearCart");
+                el.prepend(childEl);
+                $(".cartCount").css("display", "none");
+            }
+            $("div").on("click", ".jqClearCart", clearCartClick);
+        });
+    }
+
+    function restoreCartClick() {
+        $("div").off("click", ".jqRestoreCart");
+        var el = $(this);
+        $.post("/ShoppingCart/RestoreCart",
+        function (response, status) {
+            if (status == "success" && response.succeeded == true) {
+                var count = 0;
+                $(".cartItemBox").children().each(function (i) {
+                    var itemId = $(this).data("item_id");
+                    restoreItemById(itemId);
+                    count++;
+                });
+                var childEl = el.children();
+                childEl.addClass("glyphicon-trash");
+                childEl.removeClass("glyphicon-repeat");
+                el.addClass("jqClearCart");
+                el.text(" Удалить всё");
+                el.removeClass("jqRestoreCart");
+                el.prepend(childEl);
+                $(".cartCount").css("display", "block");
+                $(".cartCount").text(count);
+            }
+            $("div").on("click", ".jqRestoreCart", restoreCartClick);
+        });
+    }
+</script>

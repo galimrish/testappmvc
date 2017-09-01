@@ -1,0 +1,87 @@
+﻿@model TestWebApplication.WebUI.Models.ShoppingCartViewModel
+
+@{ var orderInfo = Model.OrderInfoDto.First(); }
+<div id="modalFastOrder" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Быстрый заказ</h4>
+            </div>
+            <div class="modal-body">
+                @using (Html.BeginForm("FastOrder", "ShoppingCart", FormMethod.Post,
+                    new { @class = "form-horizontal" }))
+                {
+                    <div class="modal-orderItem">
+                        <div class="row">
+                            <div class="col-sm-2 FO_line">
+                                <img class="img-thumbnail thumbnail" src="@orderInfo.ProductImage" />
+                            </div>
+                            <div class="col-sm-5 FO_line">
+                                <h5>@orderInfo.ProductName</h5>
+                            </div>
+                            <div class="col-sm-2 FO_line">
+                                @*<input type="number" class="form-control" min="1" max="10" placeholder="1" />*@
+                                @Html.TextBoxFor(m => m.OrderInfoDto[0].Quantity,
+                                 new { @type="number", @class="form-control jqCountInputFast", min="1", max="10", placeholder="1" })
+                            </div>
+                            <div class="col-sm-3 FO_line">
+                                <h5>
+                                    <strong>
+                                        <span class="jqPriceInput" data-item_price="@orderInfo.PricePerItem"
+                                              data-total_price="@orderInfo.PricePerItem">
+                                            @orderInfo.PricePerItem.ToString("#")
+                                        </span>
+                                        <span class="glyphicon glyphicon-rub"></span>
+                                    </strong>
+                                </h5>
+                            </div>
+                        </div>
+                        @Html.HiddenFor(m => m.OrderInfoDto[0].ProductId)
+                        @Html.HiddenFor(m => m.OrderInfoDto[0].ProductImage)
+                        @Html.HiddenFor(m => m.OrderInfoDto[0].ProductName)
+                        @Html.HiddenFor(m => m.OrderInfoDto[0].PricePerItem)
+                    </div>                    
+                    <div class="modal-contactInfo">
+                        <div class="form-group">
+                            <div class="col-sm-2">
+                                <label class="control-label">Имя</label>
+                            </div>
+                            <div class="col-sm-10">
+                                @*<input name="clientName" class="form-control" placeholder="Введите ваше имя" />*@
+                                @Html.TextBoxFor(m => m.UserInfoDto.Name,
+                                 new { placeholder = "Введите ваше имя", @class = "form-control" })
+                                @Html.ValidationMessageFor(m => m.UserInfoDto.Name, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-2">
+                                <label class="control-label">Телефон</label>
+                            </div>
+                            <div class="col-sm-10">
+                                @*<input name="clientTelNum" class="form-control" placeholder="Введите номер вашего телефона" />*@
+                                @Html.TextBoxFor(m => m.UserInfoDto.Phone,
+                          new { placeholder = "Введите номер вашего телефона", @class = "form-control  jqPhoneNumberInput" })
+                                @Html.ValidationMessageFor(m => m.UserInfoDto.Phone, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-2">
+                                <label class="control-label">Email</label>
+                            </div>
+                            <div class="col-sm-10">
+                                @*<input name="clientEmail" class="form-control" placeholder="Введите ваш email" />*@
+                                @Html.TextBoxFor(m => m.UserInfoDto.Email,
+                                 new { placeholder = "Введите ваш email", @class = "form-control" })
+                                @Html.ValidationMessageFor(m => m.UserInfoDto.Email, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input class="btn btn-danger pull-right" type="submit" value="Подтвердить заказ" />
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

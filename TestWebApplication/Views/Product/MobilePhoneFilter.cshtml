@@ -1,0 +1,39 @@
+﻿@model TestWebApplication.WebUI.Models.FilterModel
+
+<div class="filterItemBox">
+    <div class="nFilter">
+        <div class="checkbox">
+            @Html.CheckBoxFor(m => m.LTE, new { @class = "jqFilterLTE" })
+            @Html.LabelFor(m => m.LTE, new { @class = "activeRed" })
+        </div>
+    </div>
+</div>
+<div class="filterItemBox">
+    <div class="nFilter">
+        <div class="checkbox">
+            @Html.CheckBoxFor(m => m.DualSIM, new { @class = "jqFilterDualSIM" })
+            @Html.LabelFor(m => m.DualSIM, new { @class = "activeRed" })
+        </div>
+    </div>
+</div>
+<div class="filterItemBox">
+    <div class="nFilter">
+        @Html.Label("Диагональ экрана, \"", new { @class = "filterTitle" })
+        <div class="row">
+            <div class="col-xs-6">
+                <div class="input-group">
+                    <span class="input-group-addon">от</span>
+                    @Html.TextBoxFor(m => m.MinDisplaySize, "{0:F1}",
+                                new { @class = "form-control jqFilterEl jqInputNum" })
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="input-group">
+                    <span class="input-group-addon">до</span>
+                    @Html.TextBoxFor(m => m.MaxDisplaySize, "{0:F1}",
+                                new { @class = "form-control jqFilterEl jqInputNum" })
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

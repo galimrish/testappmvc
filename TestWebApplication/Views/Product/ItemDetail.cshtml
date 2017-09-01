@@ -1,0 +1,112 @@
+﻿@model TestWebApplication.WebUI.Models.ProductDetailViewModel
+@{
+    ViewBag.Title = Model.Product.ProductName;
+}
+
+<div class="row">
+    <div class="col-sm-8">        
+        <div class="imagesPanel">
+            <h3>@Model.Product.ProductName</h3>
+            <div class="imageListContainer">
+                <div class="thumbnailsContainer">
+                    @if (Model.ThmbUrls != null)
+                    { 
+                        foreach (var link in Model.ThmbUrls)
+                        {
+                            <div class="thumbnailFrame">
+                                <img class="img-thumbnail thumbnailImg thumbnail" src="@link" />
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+            <div class="mainImageContainer">
+                <img class="img-responsive mainImage" src="@Model.ImgUrls.FirstOrDefault()" />
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="pricePanel">
+            <div class="priceInner">
+                <h2 style="text-align:center">
+                    <strong>
+                        @Model.Product.Price.ToString("#") <span class="glyphicon glyphicon-ruble rubFix"></span>
+                    </strong>
+                </h2>
+                @if (Model.IsInCart)
+                {
+                    <a role="button" class="btn btn-primary btn-lg orderBtnGrp"
+                       href="/ShoppingCart/Order" data-productid="@Model.Product.ProductId">
+                        <span class="glyphicon glyphicon-ok-circle"></span> В корзине
+                    </a>
+                }
+                else
+                {
+                    <a role="button" class="btn btn-success btn-lg orderBtnGrp jqAddToCart"
+                       href="javascript:void(0)" data-productid="@Model.Product.ProductId">
+                        <span class="glyphicon glyphicon-shopping-cart"></span> В корзину
+                    </a>
+                }
+                <button class="btn btn-danger btn-lg orderBtnGrp" data-toggle="modal"
+                        data-target="#modalFastOrder">
+                    Быстрый заказ
+                </button>
+            </div>
+        </div>
+    </div><br />
+</div>
+@Html.Action("FastOrder", "ShoppingCart", Model)
+
+@{
+    switch(Model.Category)
+    {
+        case "MobilePhones": if (Model.Product.PhoneAttribute != null)
+            {
+                Html.RenderPartial("PhoneSpecs", Model.Product.PhoneAttribute);
+            }
+            break;
+        case "MobilePhoneCases": if (Model.Product.PhoneCasesAttribute != null)
+            {
+                Html.RenderPartial("CaseSpecs", Model.Product.PhoneCasesAttribute);
+            }
+            break;
+    }
+}
+
+
+<script>
+    $(function () {
+        $(".thumbnailFrame").click(function () {
+            var link = $(this).children().attr("src");
+            link = link.replace("thumbs/", "");
+            link = link.replace("140x140/", "");
+            $(".mainImage").attr("src", link);
+        });
+
+        $("input.jqCountInputFast").on({
+            keydown: function (e) {
+                onlyNumbers(e, false);
+            },
+            change: function () {
+                var el = $(this);
+                var count = +el.val();
+                var min = Number(el.attr("min"));
+                var max = Number(el.attr("max"));
+                if (isNaN(count) || count < min || count > max) {
+                    count = 1;
+                    el.val(count);
+                }
+                var elParent = el.parent();
+                var sib = elParent.next();
+                var priceNode = sib.find(".jqPriceInput");
+                var itemPrice = parseFloat(priceNode.data("item_price"));
+                var totalPrice = itemPrice * count;
+                if (!isNaN(totalPrice)) {
+                    priceNode.data("total_price", totalPrice);
+                    priceNode.text(totalPrice);
+                }
+            }
+        });
+    });
+</script>
+

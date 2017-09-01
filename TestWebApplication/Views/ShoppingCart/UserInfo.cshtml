@@ -1,0 +1,36 @@
+﻿@model TestWebApplication.WebUI.Models.UserInfoDto
+
+<h2>Информация о покупателе</h2>
+
+@using (Html.BeginForm("SubmitOrder", "ShoppingCart", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    <div class="row">
+        <div class="col-md-6 col-sm-7 col-xs-10 clientInfoFrame">
+            <div class="clientInfo">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="input-group clientInfoInput">
+                    <span class="input-group-addon clientInfoInputTitle">Имя</span>
+                    @Html.TextBoxFor(m => m.Name, new { @class = "form-control", placeholder = "Введите имя" })
+                </div>
+                @Html.ValidationMessageFor(m => m.Name, "", new { @class = "text-danger" })
+                <div class="input-group clientInfoInput">
+                    <span class="input-group-addon clientInfoInputTitle">Телефон</span>
+                    @Html.TextBoxFor(m => m.Phone,
+                        new { @class = "form-control jqPhoneNumberInput",
+                            placeholder = "Введите номер вашего телефона" })
+                </div>
+                @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger" })
+                <div class="input-group clientInfoInput">
+                    <span class="input-group-addon clientInfoInputTitle">Email</span>
+                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "Введите ваш email" })
+                </div>
+                @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+                <div class="input-group clientInfoInput">
+                    <span class="input-group-addon clientInfoInputTitle">Адрес</span>
+                    @Html.TextBoxFor(m => m.Address, new { @class = "form-control", placeholder = "Введите адрес доставки" })
+                </div>
+                <input class="btn btn-success pull-right clientInfoSubmit" type="submit" value="Подтвердить заказ" />
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,17 @@
+﻿@model System.Web.Mvc.HandleErrorInfo
+
+@{
+    Layout = null;
+}
+
+<h1>Ошибка</h1>
+@{
+    if (String.IsNullOrEmpty(ViewBag.errorMessage))
+    {
+        <p>Возникла ошибка при обработке вашего запроса.</p>
+    }
+    else
+    {
+        <p>@ViewBag.errorMessage</p>
+    }
+}

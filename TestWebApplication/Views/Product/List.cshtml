@@ -1,0 +1,154 @@
+﻿@using TestWebApplication.WebUI.Infrastructure.AjaxHelpers
+@model TestWebApplication.WebUI.Models.ProductListViewModel
+
+        
+<div class="productPanelContent">
+    @if (Model.Products == null || Model.Products.Count() == 0)
+    {
+        <div class="noFilterResult">
+            <h4>Нет подходящих товаров</h4>
+            @Html.ActionLink("Вернуться к списку товаров", "Catalog",
+                new { category = Model.PagingInfo.CurrentCategory },
+                new { @class="btn btn-default jqResetFilters" })
+            @*<input type="button" class="btn btn-default jqResetFilters" value="Вернуться к списку товаров" />*@
+        </div>
+    }
+    else
+    {
+        foreach (var item in Model.Products)
+        {
+            <div class="productItemBox">
+                <div class="row nProduct">
+                    <div class="col-xs-3">
+                        @if (item.ImageLinks != null && item.ImageLinks.Count() > 0)
+                        {
+                            <a href='@Url.Action("ItemDetail",
+                                new { category=Model.PagingInfo.CurrentCategory, itemId=item.ProductId})'>
+                                <img class="img-thumbnail thumbnail"
+                                     src=@item.ImageLinks.First().Link />
+                            </a>
+                        }
+                    </div>
+                    <div class="col-xs-9">
+                        <div class="row">
+                            <div class="col-sm-8">
+                                <h4>
+                                    <a href='@Url.Action("ItemDetail", new { itemId=item.ProductId })'>
+                                        @item.ProductName
+                                    </a>
+                                </h4>
+                                @{
+                                    if (item.PhoneAttribute != null)
+                                    {
+                                        if (item.PhoneAttribute.Platform != null)
+                                        {
+                                            <p>@item.PhoneAttribute.Platform</p>
+                                        }
+                                        <p>
+                                            @if (item.PhoneAttribute.DisplaySize != null)
+                                            {
+                                                <span>Экран @item.PhoneAttribute.DisplaySize </span>
+                                            }
+                                            @if (item.PhoneAttribute.DisplayResolution != null)
+                                            {
+                                                <span>Разрешение @item.PhoneAttribute.DisplayResolution</span>
+                                            }
+                                        </p>
+                                        if (item.PhoneAttribute.CameraPixels != null)
+                                        {
+                                            <p>Камера @item.PhoneAttribute.CameraPixels МП</p>
+                                        }
+                                            
+                                    }
+                                    if (item.PhoneCasesAttribute != null)
+                                    {
+                                        if (item.PhoneCasesAttribute.Applicability != null)
+                                        {
+                                            <p>Модель телефона: @item.PhoneCasesAttribute.Applicability</p>
+                                        }
+                                        if (item.PhoneCasesAttribute.Type != null)
+                                        {
+                                            <p>Тип чехла: @item.PhoneCasesAttribute.Type</p>
+                                        }
+                                        <p>
+                                            @if (item.PhoneCasesAttribute.Color != null)
+                                            {
+                                                <span>Цвет: @item.PhoneCasesAttribute.Color </span>
+                                            }
+                                            @if (item.PhoneCasesAttribute.Material != null)
+                                            {
+                                                <span>Материал: @item.PhoneCasesAttribute.Material</span>
+                                            }
+                                        </p>
+                                    }
+                                }
+                            </div>
+                            <div class="col-sm-4">
+                                <h3>
+                                    <strong>
+                                        @item.Price.ToString("#")
+                                    <span class="glyphicon glyphicon-rub rubFix"></span>
+                                    </strong>
+                                </h3>
+
+                                @if (Model.ProductsInCart.Contains(item.ProductId))
+                                {
+                                    <a role="button" class="btn btn-primary addToCartBtn"
+                                       href="/ShoppingCart/Order" data-productid="@item.ProductId">
+                                        <span class="glyphicon glyphicon-ok-circle"></span> В корзине
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a role="button" class="btn btn-success addToCartBtn jqAddToCart"
+                                       href="javascript:void(0)" data-productid="@item.ProductId">
+                                        <span class="glyphicon glyphicon-shopping-cart"></span> В корзину
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<div class="col-xs-12 paging">
+        @Ajax.PageLinks(Model.PagingInfo,
+    new AjaxOptions
+    {
+        UpdateTargetId = "productPanel",
+        InsertionMode = InsertionMode.Replace,
+        HttpMethod = "GET",
+        OnBegin = "changePageBegin",
+        OnFailure = "changePageFailure"
+    },
+    x => Url.Action("List", new
+    {
+        category = Model.PagingInfo.CurrentCategory,
+        page = x,
+        queryString = Model.QueryString
+    }))
+</div>
+
+<script>
+    var state;
+    var initialUrl;
+    function changePageBegin() {
+        var el = $('#productPanel');
+        state = el.html();
+        initialUrl = window.location.href;
+        var url1 = this.getAttribute('href');
+        var url2 = this.href;
+        window.history.pushState(null, document.title, url2);
+        window.scrollTo(0, 0);
+        el.html('<img src="/Content/img/loading.gif" alt="Поиск..."'
+                        + 'style="position:relative;height:100px;width:100px;top:48%;left:48%;">');
+    }
+    function changePageFailure() {
+        var el = $('#productPanel');
+        el.html(state);
+        window.history.pushState(null, document.title, initialUrl);
+    }
+</script>

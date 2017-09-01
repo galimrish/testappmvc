@@ -1,0 +1,49 @@
+﻿@model List<TestWebApplication.WebUI.Models.Category>
+@{
+    ViewBag.Title = "TestApp: Домашняя страница";
+}
+
+<div class="row descrpContainer">
+    <div class="col-md-4">
+        <div class="catalogCategoriesFrame">
+            <div class="catalogCategoriesContent">
+                <h3>Каталог товаров</h3>
+                <hr />
+                @foreach (var item in Model)
+                {
+                    <div class="categoryLink">
+                        <a role="button" class="btn btn-default btn-categories" style="width:100%"
+                           href='@Url.Action("Catalog", "Product", new { category=item.Value })'>
+                            @item.Title
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="appInfoFrame">
+            <div class="appInfoContent">
+                <h3>Информация</h3>
+                <hr />
+                <p>
+                    Данный сайт разработан в демонстрационных целях и представляет собой типовой интернет-магазин с базовым функционалом.
+                    Для наполнения базы данных был выполнен парсинг сайта e96.ru.
+                </p>
+                <p>
+                    Платформа разработки ASP.NET MVC 5.0. Система авторизации выполнена с использованием ASP.NET Identity.
+                    Так же при разработке использовались следующие инструменты и технологии:
+                </p>
+                <ul>
+                    <li>Entity Framework</li>
+                    <li>AutoMapper</li>
+                    <li>Ninject</li>
+                    <li>NLog</li>
+                    <li>Javascript, Ajax</li>
+                    <li>jQuery</li>
+                    <li>Bootstrap</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

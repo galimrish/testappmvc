@@ -1,0 +1,7 @@
+﻿@model TestWebApplication.WebUI.Models.BrandModel
+
+<div class="checkbox">
+    @Html.CheckBoxFor(m => m.IsSelected, new { @class = "jqFilterEl brand_chkbx", Name = "br_" + @Model.Code })
+    @Html.LabelFor(m => m.IsSelected, @Model.Name, new { @class = "activeRed" })
+    @Html.HiddenFor(m => m.Name, new { Name = "brN_" + @Model.Name })
+</div>

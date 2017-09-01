@@ -1,0 +1,46 @@
+﻿@model TestWebApplication.WebUI.Models.FilterModel
+
+@using (Html.BeginForm("Catalog", "Product", FormMethod.Get, new { @class = "form-horizontal"}))
+{
+    <div class="filterPanelContent">
+        <div class="filterItemBox">
+            <div class="nFilter">                
+                @Html.Label("Цена, руб", new { @class = "filterTitle" })
+                <div class="row">
+                    <div class="col-xs-6">
+                        <div class="input-group">
+                            <span class="input-group-addon">от</span>
+                            @Html.TextBoxFor(m => m.MinPrice, "{0:F0}",
+                                new { @class = "form-control jqFilterEl jqInputNum" })
+                        </div>
+                    </div>
+                    <div class="col-xs-6">
+                        <div class="input-group">
+                            <span class="input-group-addon">до</span>
+                            @Html.TextBoxFor(m => m.MaxPrice, "{0:F0}",
+                                new { @class = "form-control jqFilterEl jqInputNum" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="filterItemBox">
+            <div class="nFilter">
+                <div class="jqBrandList activeRed">
+                    <span class="caret"></span>
+                    <span style="font-weight:bold">Производитель</span>
+                </div>
+                <div class="brandList" style="display:none">
+                    @Html.EditorFor(m => m.Brands)
+                </div>
+            </div>
+        </div>
+        @{
+            switch(Model.Category)
+            {
+                case "Мобильные телефоны": Html.RenderPartial("MobilePhoneFilter", Model);
+                    break;
+            }
+        }
+    </div>
+}

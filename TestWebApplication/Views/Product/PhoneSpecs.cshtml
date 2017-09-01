@@ -1,0 +1,128 @@
+﻿@model TestWebApplication.Domain.Entities.PhoneAttribute
+
+<div class="row">
+    <div class="col-sm-6">
+        <h3>Технические характеристики</h3>
+        <hr />
+        <table class="table-hover" style="width:100%;">
+            <tr>
+                <th colspan="2" style="padding:5px 0 5px 0">Общие</th>
+            </tr>
+            @{
+                if(Model.Platform != null)
+                { 
+                    <tr>
+                        <td>Платформа</td>
+                        <td>@Model.Platform</td>
+                    </tr>
+                }
+                if(Model.Model != null)
+                {
+                    <tr>
+                        <td>Модель</td>
+                        <td>@Model.Model</td>
+                    </tr>
+                }
+                if(Model.SIMtype != null)
+                {
+                <tr>
+                    <td>Тип SIM-карты</td>
+                    <td>@Model.SIMtype</td>
+                </tr>
+                }
+                if(Model.DualSIM != null)
+                {
+                <tr>
+                    <td>Поддержка двух SIM-карт</td>
+                    <td>@Model.DualSIM</td>
+                </tr>
+                }
+                if (Model.LTE != null)
+                {
+                    <tr>
+                        <td>Пооддержка 4G</td>
+                        <td>@Model.LTE</td>
+                    </tr>
+                }
+                if (Model.GPS != null)
+                {
+                    <tr>
+                        <td>GPS-модуль</td>
+                        <td>@Model.GPS</td>
+                    </tr>
+                }
+                if (Model.BatteryCapacity != null)
+                {
+                    <tr>
+                        <td>Емкость аккумулятора</td>
+                        <td>@Model.BatteryCapacity</td>
+                    </tr>
+                }
+                if(Model.Size != null)
+                {
+                <tr>
+                    <td>Размер</td>
+                    <td>@Model.Size</td>
+                </tr>
+                }
+            }
+            <tr>
+                <th colspan="2" style="padding:10px 0 5px 0">Основные</th>
+            </tr>
+            @{
+                if(Model.DisplaySize != null)
+                {
+                <tr>
+                    <td>Диагональ</td>
+                    <td>@Model.DisplaySize</td>
+                </tr>
+                }
+                if(Model.DisplayResolution != null)
+                {
+                    <tr>
+                        <td>Размер изображения</td>
+                        <td>@Model.DisplayResolution</td>
+                    </tr>
+                }
+                <tr>
+                    <th></th>
+                </tr>
+                if (Model.CameraPixels != null)
+                {
+                    <tr>
+                        <td>Фотокамера</td>
+                        <td>@Model.CameraPixels</td>
+                    </tr>
+                }            
+                if (Model.FrontalCamera != null)
+                {
+                    <tr>
+                        <td>Фронтальная камера</td>
+                        <td>@Model.FrontalCamera</td>
+                    </tr>
+                }
+                if (Model.InternalMemory != null)
+                {
+                    <tr>
+                        <td>Объем встроенной памяти</td>
+                        <td>@Model.InternalMemory</td>
+                    </tr>
+                }
+                if (Model.RAM != null)
+                {
+                    <tr>
+                        <td>Объем оперативной памяти</td>
+                        <td>@Model.RAM</td>
+                    </tr>
+                }
+                if (Model.CPUfreq != null)
+                {
+                    <tr>
+                        <td>Частота процессора</td>
+                        <td>@Model.CPUfreq</td>
+                    </tr>
+                }
+            }
+        </table>
+    </div>
+</div>

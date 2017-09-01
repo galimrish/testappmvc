@@ -1,0 +1,17 @@
+﻿@model int
+
+<div class="shopCartBox">
+    <a class="shopCartIco pull-right" href='@Url.Action("Order", "ShoppingCart")'>
+    @{
+        if (Model > 0)
+        {
+            <span class="cartCount" style="display:block">@Model</span>
+        }
+        else
+        {
+            <span class="cartCount" style="display:none"></span>
+        }
+    }
+    </a>
+</div>
+

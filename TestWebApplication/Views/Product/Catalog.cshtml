@@ -1,0 +1,216 @@
+﻿@model TestWebApplication.WebUI.Models.PagingInfo
+@{
+    ViewBag.Title = "TestApp: Список товаров";
+}
+
+@{
+    if (Model.TotalItems == 0)
+    {
+        <h4>По вашему запросу ничего не найдено</h4>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-lg-9 col-md-8">
+                <div class="sorter">
+                    <div class="sorterLabel">Сортировать:</div>
+                    <div class="popularSorter">
+                        <a class="sorterLink jqPopularSorter active">по популярности</a>
+                    </div>
+                    <div class="priceSorter">
+                        <a class="sorterLink jqPriceSorter" data-order="no">по цене  </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-3 col-lg-push-9 col-md-4 col-md-push-8">
+                <div class="filterPanelFrame">
+                    @Html.Action("FilterPanel", new { category = Model.CurrentCategory })
+                </div>
+            </div>
+            <div class="col-lg-9 col-lg-pull-3 col-md-8 col-md-pull-4">
+                <div id="productPanel" class="productPanelFrame">
+                    @Html.Action("List", new { category = Model.CurrentCategory, page = Model.CurrentPage })
+                </div>
+            </div>
+        </div>
+    }
+}
+
+<script>
+    $(function () {
+        $(".jqPopularSorter").on("click", popularSorter);
+        $(".jqPriceSorter").on("click", priceSorter);
+        //$("div.productPanelFrame").on("click", ".jqResetFilters", resetFiltersClick);
+        $("input.jqFilterEl").on("change",
+            {selector: ".jqFilterEl"}, filterElChange);
+        $("input.jqFilterLTE").on("change",
+            {selector: ".jqFilterLTE"}, filterElChange);
+        $("input.jqFilterDualSIM").on("change",
+            {selector: ".jqFilterDualSIM"}, filterElChange);
+        $("div.jqBrandList").on("click", brandlistClick);
+
+        $("input.jqInputNum").on("keydown", function (e) {
+            if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 188]) !== -1 ||
+            (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+            (e.keyCode >= 35 && e.keyCode <= 40)) {
+                return;
+            }
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57))
+                && (e.keyCode < 96 || e.keyCode > 105)) {
+                e.preventDefault();
+            }
+        });
+    });
+
+    function popularSorter() {
+        $(".jqPopularSorter").off("click", popularSorter);
+        //console.log("jqPriceSorter entry");
+        var el = $(this);
+        var curLinkParent = el.parent().next();
+        var glyphNode = curLinkParent.children(".glyphicon");
+        if (glyphNode.length) {
+            glyphNode.remove();
+        }
+        var curLink = curLinkParent.children(".sorterLink");
+        curLink.removeClass("active");
+        el.addClass("active");
+        updateContent("sortby", "false", ".jqPopularSorter", null, "click", popularSorter);
+    }
+
+    function priceSorter() {        
+        $(".jqPriceSorter").off("click", popularSorter);
+        //console.log("jqPriceSorter entry");
+        var el = $(this);
+        var curLinkParent = el.parent().prev();
+        var curLink = curLinkParent.children(".sorterLink");
+        curLink.removeClass("active");
+        el.addClass("active");
+        var oldGlyph = el.next();
+        if (oldGlyph.length) {
+            oldGlyph.remove();
+        }
+        var glyphNode = $("<span></span>").addClass("glyphicon");
+        var key = "sortby";
+        var value = "";
+        if (el.data("order") == "asc") {
+            value = "desc";
+            el.data("order", value);
+            glyphNode.addClass("glyphicon-sort-by-attributes-alt");
+            el.parent().append(glyphNode);
+        }
+        else {
+            value = "asc";
+            el.data("order", value);
+            glyphNode.addClass("glyphicon-sort-by-attributes");
+            el.parent().append(glyphNode);
+        }
+        updateContent(key, value, ".jqPriceSorter", "click", priceSorter);
+    }
+
+    function filterElChange(e) {
+        var el = $(this);
+        if (el.val() == "")
+            return;
+        $("div").off("change", e.data.selector);
+        var key = el.attr("name");
+        var value = el.val();
+        if (el.attr("type") == "checkbox") {
+            value = el.prop("checked") == true ? "true" : "false";
+        }
+        updateContent(key, value, e.data.selector, e.type,  filterElChange);
+    }
+
+    //function resetFiltersClick() {
+    //    $("div").off("click", ".jqResetFilters");
+    //}
+
+    function updateContent(key, value, elementSelector, eventSelector, eventType, fn) {
+        //console.log("Entered to updateContent");
+        var path = window.location.href;
+        if (path.indexOf('?') > -1) {
+            path = path.slice(0, path.indexOf('?'));
+        }
+        var url = path;
+        var qs = "";
+        if(!(key == "filters" && value == "false")) {
+            qs = proccessUrl(key, value);
+            if (qs != "")
+                url += '?' + qs;
+        }
+        window.history.pushState(null, document.title, url);
+        var lastSlash = path.lastIndexOf('/');
+        var category = path.slice(lastSlash + 1);
+        if (category.toLowerCase() == "catalog")
+            category = "";
+        path = '@Url.Action("List")' + '/' + category;
+        var params = {
+            queryString: qs
+        };
+        var prevState = $('#productPanel').html();
+        $.ajax({
+            type: 'GET',
+            url: path,
+            contentType: "application/json; charset=utf-8",
+            data: params,
+            beforeSend: function() {
+                $('#productPanel').html('<img src="/Content/img/loading.gif" alt="Поиск..."'
+                    +'style="position:relative;height:100px;width:100px;top:48%;left:48%;">');
+            },
+            complete: function(jqXHR, textStatus) {
+                if (textStatus != "success")
+                    $('#productPanel').html(prevState);
+                $(elementSelector).on(eventType, eventSelector,  fn);
+            },
+            success: function(result) {
+                $('#productPanel').html(result);
+            }
+        });
+    }
+
+    function proccessUrl(key, value) {
+        var query = window.location.href;
+        var qsPos = query.indexOf('?');
+        if (qsPos == -1) {
+            query = "";
+            if (value == "false")
+                return query;
+            query = key + '=' + value;
+            return query;
+        }
+        var qs = {};
+        var hashes = query.slice(qsPos + 1).split('&');
+        for(var i = 0; i < hashes.length; i++) {
+            var k = hashes[i].slice(0, hashes[i].indexOf('='));
+            qs[k] = hashes[i].slice(hashes[i].indexOf('=') + 1);
+        }
+        var hasKey = false;
+        for(var k in qs) {
+            if (k == key) {
+                qs[k] = value;
+                hasKey = true;
+                break;
+            }
+        }
+        if (!hasKey) {
+            qs[key] = value;
+        }
+        if (value == "false") {
+            delete qs[key];
+        }
+        query = "";
+        for(var k in qs) {
+            query += k + '=' + qs[k] + '&';
+        }
+        query = query.slice(0, query.length - 1);
+        return encodeURI(query);
+    }
+
+    function brandlistClick(){
+        $("div.jqBrandList").off("click");
+        //console.log("Entered to jqBrandlist");
+        $(".brandList").slideToggle();
+        $("div.jqBrandList").on("click", brandlistClick);
+    }
+</script>

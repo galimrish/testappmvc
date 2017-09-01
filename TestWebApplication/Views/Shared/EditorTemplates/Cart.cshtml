@@ -1,0 +1,53 @@
+﻿@model TestWebApplication.Domain.Entities.Cart
+
+<div class="cartItemBox">
+    <div class="row cartItem" data-item_id="@Model.RecordId">
+        <div class="col-xs-2">
+            <div class="cartItemImg">
+                @if (Model.Product.ImageLinks != null && Model.Product.ImageLinks.Count > 0)
+                {
+                    <img class="img-thumbnail thumbnail" height="40" width="40"
+                         src=@Model.Product.ImageLinks.First().Link />
+                }
+            </div>
+        </div>
+        <div class="col-xs-10">
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="cartItemDscr">
+                        <a class="cartItemName" href="@Url.Action("ItemDetail", "Product",
+                        new { itemId = Model.ProductId })">@Model.Product.ProductName</a>
+                        <div class="trashFrame">
+                            <div class="cartItemTrash jqRemoveCartItem" data-item_id="@Model.RecordId">
+                                <span class="glyphicon glyphicon-trash trash"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="cartItemCount">
+                        @Html.TextBoxFor(m => m.Count, new { type="number", data_product_id=Model.ProductId.ToString(),
+                            @class="form-control text-center jqCountInput", min="1", max="10"})
+                     </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="cartItemPriceBox">
+                        <div class="cartItemPrice">
+                            <strong>
+                                <span class="jqPriceOutput"
+                                      data-item_price="@Model.Product.Price.ToString(
+                                        new System.Globalization.NumberFormatInfo() { NumberDecimalSeparator = "." })"
+                                      data-total_price="@((Model.Count * Model.Product.Price).ToString(
+                                        new System.Globalization.NumberFormatInfo() { NumberDecimalSeparator = "." }))">
+                                    @((Model.Count * Model.Product.Price).ToString("#"))
+                                </span>
+                            </strong>
+                            <span class="glyphicon glyphicon-rub rubFix"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
